@@ -38,10 +38,10 @@ func setupHTTP() *http.Server {
 				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 				return
 			}
-			if url := canUseTLS(r); url != "" {
-				http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-				return
-			}
+			// if url := canUseTLS(r); url != "" {
+			//	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+			//	return
+			// }
 			if _, pwd, _ := r.BasicAuth(); pwd != serverAuth {
 				w.Header().Set("WWW-Authenticate", `Basic charset="UTF-8"`)
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
