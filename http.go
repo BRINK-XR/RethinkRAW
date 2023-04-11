@@ -30,6 +30,7 @@ func setupHTTP() *http.Server {
 	mux.Handle("/thumb/", http.StripPrefix("/thumb", httpHandler(thumbHandler)))
 	mux.Handle("/dialog", httpHandler(dialogHandler))
 	mux.Handle("/upload", httpHandler(uploadHandler))
+	mux.Handle("/serverBatch/", httpHandler(serverBatchHandler))
 	mux.Handle("/", assetHandler)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
