@@ -137,6 +137,8 @@ func exportEdit(ctx context.Context, path string, xmp xmpSettings, exp exportSet
 	}
 
 	err = editXMP(wk.origXMP(), xmp)
+	// log.Print(wk.origXMP())
+	// log.Print(xmp)
 	if err != nil {
 		return nil, err
 	}
@@ -162,6 +164,10 @@ func exportEdit(ctx context.Context, path string, xmp xmpSettings, exp exportSet
 		}
 
 		err = os.WriteFile(wk.jpeg(), data, 0600)
+		if err != nil {
+			return nil, err
+		}
+		err = injectXMP(wk.temp(), wk.jpeg())
 		if err != nil {
 			return nil, err
 		}

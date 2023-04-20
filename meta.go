@@ -34,11 +34,39 @@ func fixMetaDNG(orig, dest, name string) error {
 	return err
 }
 
+func injectXMP(orig, dest string) error {
+	// opts := []string{"-tagsFromFile", orig, "-fixBase",
+	// 	"-CommonIFD0", "-ExifIFD:all", "-GPS:all", // https://exiftool.org/forum/index.php?topic=8378.msg43043#msg43043
+	// 	"-IPTC:all", "-XMP-dc:all", "-XMP-dc:Format=",
+	// 	"-fast", "-overwrite_original", dest}
+	opts := []string{"-tagsFromFile", orig, //"-fixBase",
+		// "-XMP+dc:Format=image/jpeg",
+		// "-CommonIFD0", "-ExifIFD:all", "-GPS:all", // https://exiftool.org/forum/index.php?topic=8378.msg43043#msg43043
+		// "-IPTC:all", "-XMP-dc:all",
+		//"-fast",
+		"-overwrite_original",
+		// "-a",
+		// "-u",
+		// "-U",
+		dest}
+
+	log.Print("exiftool (inject xmp)...")
+	_, err := exifserver.Command(opts...)
+	return err
+}
+
 func fixMetaJPEG(orig, dest string) error {
-	opts := []string{"-tagsFromFile", orig, "-fixBase",
-		"-CommonIFD0", "-ExifIFD:all", "-GPS:all", // https://exiftool.org/forum/index.php?topic=8378.msg43043#msg43043
-		"-IPTC:all", "-XMP-dc:all", "-XMP-dc:Format=",
-		"-fast", "-overwrite_original", dest}
+	opts := []string{"-tagsFromFile", orig,
+		"-fixBase",
+		"-CommonIFD0",
+		"-ExifIFD:all",
+		"-GPS:all", // https://exiftool.org/forum/index.php?topic=8378.msg43043#msg43043
+		"-IPTC:all",
+		"-XMP-dc:all",
+		"-XMP-dc:Format=",
+		"-fast",
+		"-overwrite_original",
+		dest}
 
 	log.Print("exiftool (fix jpeg)...")
 	_, err := exifserver.Command(opts...)

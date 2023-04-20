@@ -56,6 +56,9 @@ async function loadSettings() {
     for (let k of ['tint', 'texture', 'clarity', 'dehaze', 'sharpness', 'luminanceNR', 'colorNR']) {
         rangeInput(form[k], settings[k]);
     }
+    for (let k of ['VignetteAmount', 'LensManualDistortionAmount']) {
+        rangeInput(form[k], settings[k]);
+    }
 
     if (settings.autoTone) tone = 'Auto';
     toneChange(form.tone, tone);
@@ -519,6 +522,11 @@ function formQuery(query) {
         query.set(k, form[k][0].value);
     }
     for (let k of ['texture', 'clarity', 'dehaze', 'sharpness', 'luminanceNR', 'colorNR']) {
+        if (form[k][0].value == 0) continue;
+        query.set(k, form[k][0].value);
+    }
+
+    for (let k of ['VignetteAmount', 'LensManualDistortionAmount']) {
         if (form[k][0].value == 0) continue;
         query.set(k, form[k][0].value);
     }

@@ -151,9 +151,23 @@
     </fieldset>
 
     <fieldset disabled>
+        <legend>Optics</legend>
+
+        <label for=VignetteAmount>Vignette Amount</label>
+        <output for=VignetteAmount name=VignetteAmount></output>
+        <input type=range id=VignetteAmount value="0" min="-100" max="100" step="1"
+            oninput="rangeInput(this)" onchange="valueChange()">
+    </fieldset>
+
+    <fieldset disabled>
         <legend>Lens Corrections</legend>
         <label><input type=checkbox name=lensProfile onchange="valueChange()"> Enable Profile Corrections</label><br>
         <label><input type=checkbox name=autoLateralCA onchange="valueChange()"> Remove Chromatic Aberration</label>
+
+        <label for=LensManualDistortionAmount>Lens Manual Distortion Amount</label>
+        <output for=LensManualDistortionAmount name=LensManualDistortionAmount></output>
+        <input type=range id=LensManualDistortionAmount value="0" min="-100" max="100" step="1"
+            oninput="rangeInput(this)" onchange="valueChange()">
     </fieldset>
 </form>
 
