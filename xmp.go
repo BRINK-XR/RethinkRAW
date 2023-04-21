@@ -49,8 +49,8 @@ type xmpSettings struct {
 	LensProfile   bool `json:"lensProfile"`
 	AutoLateralCA bool `json:"autoLateralCA"`
 
-	VignetteAmount             int `json:"VignetteAmount"`
-	LensManualDistortionAmount int `json:"LensManualDistortionAmount"`
+	LensProfileDistortionScale int `json:"LensProfileDistortionScale"`
+	LensProfileVignettingScale int `json:"LensProfileVignettingScale"`
 }
 
 type xmpWhiteBalance struct {
@@ -143,8 +143,8 @@ func loadXMP(path string) (xmp xmpSettings, err error) {
 	loadInt(&xmp.LuminanceNR, m, "LuminanceSmoothing")
 	loadInt(&xmp.ColorNR, m, "ColorNoiseReduction")
 
-	loadInt(&xmp.VignetteAmount, m, "VignetteAmount")
-	loadInt(&xmp.LensManualDistortionAmount, m, "LensManualDistortionAmount")
+	loadInt(&xmp.LensProfileDistortionScale, m, "LensProfileDistortionScale")
+	loadInt(&xmp.LensProfileVignettingScale, m, "LensProfileVignettingScale")
 
 	// lens corrections
 	loadBool(&xmp.LensProfile, m, "LensProfileEnable")
@@ -276,15 +276,10 @@ func editXMP(path string, xmp xmpSettings) error {
 		"-XMP-crs:LuminanceSmoothing="+strconv.Itoa(xmp.LuminanceNR),
 		"-XMP-crs:ColorNoiseReduction="+strconv.Itoa(xmp.ColorNR))
 
-	// effects
+	// optics
 	opts = append(opts,
-		"-XMP-crs:VignetteAmount="+strconv.Itoa(xmp.VignetteAmount),
-		"-XMP-crs:VignetteMidpoint=50",
-	)
-
-	// custom
-	opts = append(opts,
-		"-XMP-crs:LensManualDistortionAmount="+strconv.Itoa(xmp.LensManualDistortionAmount))
+		"-XMP-crs:LensProfileDistortionScale="+strconv.Itoa(xmp.LensProfileDistortionScale),
+		"-XMP-crs:LensProfileVignettingScale="+strconv.Itoa(xmp.LensProfileVignettingScale))
 
 	// lens corrections
 	opts = append(opts,

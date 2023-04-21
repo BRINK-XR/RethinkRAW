@@ -56,7 +56,7 @@ async function loadSettings() {
     for (let k of ['tint', 'texture', 'clarity', 'dehaze', 'sharpness', 'luminanceNR', 'colorNR']) {
         rangeInput(form[k], settings[k]);
     }
-    for (let k of ['VignetteAmount', 'LensManualDistortionAmount']) {
+    for (let k of ['LensProfileDistortionScale', 'LensProfileVignettingScale']) {
         rangeInput(form[k], settings[k]);
     }
 
@@ -526,7 +526,7 @@ function formQuery(query) {
         query.set(k, form[k][0].value);
     }
 
-    for (let k of ['VignetteAmount', 'LensManualDistortionAmount']) {
+    for (let k of ['LensProfileDistortionScale', 'LensProfileVignettingScale']) {
         if (form[k][0].value == 0) continue;
         query.set(k, form[k][0].value);
     }
