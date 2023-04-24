@@ -53,3 +53,7 @@ form#settings div[class*=disabled] {
 form#settings div[class*=disabled] output {
     visibility: hidden;
 }
+
+.optics {
+    display: none;
+}

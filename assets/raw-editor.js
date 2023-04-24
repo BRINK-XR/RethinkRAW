@@ -45,6 +45,7 @@ async function loadSettings() {
     form.autoLateralCA.checked = settings.autoLateralCA;
 
     profileChange(form.profile, settings.profile);
+    profileCorrectionsValueChange(form.lensProfile, settings.lensProfile);
     temperatureInput(form.temperature, settings.temperature);
     whiteBalanceChange(form.whiteBalance, settings.whiteBalance);
 
@@ -111,6 +112,14 @@ window.valueChange = () => {
     save.disabled = false;
     updatePhoto();
 };
+
+window.profileCorrectionsValueChange = (e, val) => {
+    if (val !== void 0) e.value = val;
+
+    e.form.querySelector('.optics').style.display = e.checked ? "block" : "none";
+
+    valueChange();
+}
 
 window.orientationChange = op => {
     const table = {

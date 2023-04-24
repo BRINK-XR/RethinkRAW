@@ -276,15 +276,15 @@ func editXMP(path string, xmp xmpSettings) error {
 		"-XMP-crs:LuminanceSmoothing="+strconv.Itoa(xmp.LuminanceNR),
 		"-XMP-crs:ColorNoiseReduction="+strconv.Itoa(xmp.ColorNR))
 
-	// optics
-	opts = append(opts,
-		"-XMP-crs:LensProfileDistortionScale="+strconv.Itoa(xmp.LensProfileDistortionScale),
-		"-XMP-crs:LensProfileVignettingScale="+strconv.Itoa(xmp.LensProfileVignettingScale))
-
 	// lens corrections
 	opts = append(opts,
 		"-XMP-crs:AutoLateralCA="+strconv.Itoa(util.Btoi(xmp.AutoLateralCA)),
 		"-XMP-crs:LensProfileEnable="+strconv.Itoa(util.Btoi(xmp.LensProfile)))
+
+	// optics
+	opts = append(opts,
+		"-XMP-crs:LensProfileDistortionScale="+strconv.Itoa(xmp.LensProfileDistortionScale),
+		"-XMP-crs:LensProfileVignettingScale="+strconv.Itoa(xmp.LensProfileVignettingScale))
 
 	opts = append(opts, "-overwrite_original", path)
 
