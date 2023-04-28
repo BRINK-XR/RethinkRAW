@@ -31,7 +31,8 @@ func exportJPEG(ctx context.Context, path string) ([]byte, error) {
 		return nil, err
 	}
 	defer f.Close()
-	data, err := dcraw.GetThumb(ctx, f)
+	data, err := dcraw.GetThumbJPEG(ctx, f)
+	// data, err := dcraw.GetThumb(ctx, f)
 	if err != nil {
 		return nil, err
 	}

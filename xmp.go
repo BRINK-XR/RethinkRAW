@@ -282,6 +282,7 @@ func editXMP(path string, xmp xmpSettings) error {
 		"-XMP-crs:LensProfileEnable="+strconv.Itoa(util.Btoi(xmp.LensProfile)))
 
 	// optics
+	// log.Print(xmp.LensProfileDistortionScale)
 	opts = append(opts,
 		"-XMP-crs:LensProfileDistortionScale="+strconv.Itoa(xmp.LensProfileDistortionScale),
 		"-XMP-crs:LensProfileVignettingScale="+strconv.Itoa(xmp.LensProfileVignettingScale))

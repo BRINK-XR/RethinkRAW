@@ -81,6 +81,7 @@ func previewEdit(ctx context.Context, path string, size int, xmp xmpSettings) ([
 	}
 
 	if size == 0 {
+		// log.Print("a")
 		// use the original RAW file for a full resolution preview
 
 		err = editXMP(wk.origXMP(), xmp)
@@ -93,8 +94,14 @@ func previewEdit(ctx context.Context, path string, size int, xmp xmpSettings) ([
 			return nil, err
 		}
 
+		err = editXMP(wk.temp(), xmp)
+		if err != nil {
+			return nil, err
+		}
+
 		return previewJPEG(ctx, wk.temp())
 	} else if wk.hasEdit {
+		// log.Print("b")
 		// use edit.dng (downscaled to at most 2560 on the widest side)
 
 		err = editXMP(wk.edit(), xmp)
@@ -107,8 +114,19 @@ func previewEdit(ctx context.Context, path string, size int, xmp xmpSettings) ([
 			return nil, err
 		}
 
-		return previewJPEG(ctx, wk.temp())
+		err = editXMP(wk.temp(), xmp)
+		if err != nil {
+			return nil, err
+		}
+
+		preview, err := previewJPEG(ctx, wk.temp())
+
+		data, err := exportJPEG(ctx, wk.temp())
+		err = os.WriteFile(wk.jpeg(), data, 0600)
+
+		return preview, err
 	} else {
+		// log.Print("c")
 		// create edit.dng (downscaled to 2560 on the widest side)
 
 		err = editXMP(wk.origXMP(), xmp)
@@ -117,6 +135,11 @@ func previewEdit(ctx context.Context, path string, size int, xmp xmpSettings) ([
 		}
 
 		err = runDNGConverter(ctx, wk.orig(), wk.edit(), 2560, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		err = editXMP(wk.edit(), xmp)
 		if err != nil {
 			return nil, err
 		}
@@ -130,6 +153,29 @@ func exportEdit(ctx context.Context, path string, xmp xmpSettings, exp exportSet
 	if err != nil {
 		return nil, err
 	}
+
+	if xmp.WhiteBalance == "Camera Matching…" {
+		xmp.WhiteBalance = cameraMatchingWhiteBalance(wk.orig())
+	}
+
+	err = editXMP(wk.origXMP(), xmp)
+	if err != nil {
+		return nil, err
+	}
+
+	dest, err := destSidecar(path)
+	if err != nil {
+		return nil, err
+	}
+
+	err = osutil.Copy(wk.origXMP(), dest)
+
+	wk.close()
+
+	wk, err = openWorkspace(path)
+	if err != nil {
+		return nil, err
+	}
 	defer wk.close()
 
 	if xmp.WhiteBalance == "Camera Matching…" {
@@ -137,46 +183,102 @@ func exportEdit(ctx context.Context, path string, xmp xmpSettings, exp exportSet
 	}
 
 	err = editXMP(wk.origXMP(), xmp)
+	if err != nil {
+		return nil, err
+	}
+
+	err = runDNGConverter(ctx, wk.orig(), wk.edit(), 0, &exp)
+	if err != nil {
+		return nil, err
+	}
+
+	err = editXMP(wk.edit(), xmp)
+	if err != nil {
+		return nil, err
+	}
+
+	err = runDNGConverter(ctx, wk.edit(), wk.temp(), 0, &exp)
+	if err != nil {
+		return nil, err
+	}
+
+	err = editXMP(wk.temp(), xmp)
+	if err != nil {
+		return nil, err
+	}
+
+	previewJPEG(ctx, wk.temp())
+
+	data, err := exportJPEG(ctx, wk.temp())
+	err = os.WriteFile(wk.jpeg(), data, 0600)
+
+	err = injectXMP(wk.temp(), wk.jpeg())
+	if err != nil {
+		return nil, err
+	}
+	err = fixMetaJPEG(wk.jpeg(), wk.jpeg())
+	if err != nil {
+		return nil, err
+	}
+
+	os.RemoveAll(dest)
+
+	return os.ReadFile(wk.jpeg())
+
+	// data, err := previewJPEG(ctx, wk.edit())
+
+	// err = os.WriteFile(wk.jpeg(), data, 0600)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return os.ReadFile(wk.jpeg())
+
+	// err = editXMP(wk.origXMP(), xmp)
 	// log.Print(wk.origXMP())
 	// log.Print(xmp)
-	if err != nil {
-		return nil, err
-	}
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	err = runDNGConverter(ctx, wk.orig(), wk.temp(), 0, &exp)
-	if err != nil {
-		return nil, err
-	}
+	// err = runDNGConverter(ctx, wk.orig(), wk.temp(), 0, &exp)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	if exp.DNG {
-		err = fixMetaDNG(wk.orig(), wk.temp(), path)
-		if err != nil {
-			return nil, err
-		}
-		return os.ReadFile(wk.temp())
-	} else {
-		data, err := exportJPEG(ctx, wk.temp())
-		if err != nil {
-			return nil, err
-		}
-		if exp.Resample {
-			return resampleJPEG(data, exp)
-		}
+	// err = editXMP(wk.temp(), xmp)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-		err = os.WriteFile(wk.jpeg(), data, 0600)
-		if err != nil {
-			return nil, err
-		}
-		err = injectXMP(wk.temp(), wk.jpeg())
-		if err != nil {
-			return nil, err
-		}
-		err = fixMetaJPEG(wk.orig(), wk.jpeg())
-		if err != nil {
-			return nil, err
-		}
-		return os.ReadFile(wk.jpeg())
-	}
+	// if exp.DNG {
+	// 	err = fixMetaDNG(wk.orig(), wk.temp(), path)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	return os.ReadFile(wk.temp())
+	// } else {
+	// 	data, err := exportJPEG(ctx, wk.temp())
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	if exp.Resample {
+	// 		return resampleJPEG(data, exp)
+	// 	}
+
+	// 	err = os.WriteFile(wk.jpeg(), data, 0600)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	// err = injectXMP(wk.temp(), wk.jpeg())
+	// 	// if err != nil {
+	// 	// 	return nil, err
+	// 	// }
+	// 	// err = fixMetaJPEG(wk.orig(), wk.jpeg())
+	// 	// if err != nil {
+	// 	// 	return nil, err
+	// 	// }
+	// 	return os.ReadFile(wk.jpeg())
+	// }
 }
 
 func exportPath(path string, exp exportSettings) string {
